@@ -14,6 +14,7 @@ from app.services.pdf_service import extract_text_from_pdf
 from app.services.chunk_service import chunk_text
 from app.services.embedding_service import embed_texts
 from app.services.vector_service import add_chunks_to_vector_db, delete_document_vectors
+from app.services.activity_service import log_activity
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -80,6 +81,9 @@ def upload_pdf(
 
     process_document(doc, raw_text, db)
 
+    log_activity(db, current_user.id, "upload", f"Uploaded PDF: {doc.title}")
+
+
     return {
         "message": "PDF uploaded and indexed successfully",
         "document_id": doc.id,
@@ -105,6 +109,8 @@ def create_note(
     db.refresh(doc)
 
     process_document(doc, payload.content, db)
+
+    log_activity(db, current_user.id, "note", f"Created note: {doc.title}")
 
     return {
         "message": "Note created and indexed successfully",
@@ -141,4 +147,7 @@ def delete_document(
     delete_document_vectors(doc_id, current_user.id)
     db.delete(doc)
     db.commit()
+
+    log_activity(db, current_user.id, "delete", f"Deleted document: {doc.title}")
+    
     return {"message": "Document deleted successfully"}

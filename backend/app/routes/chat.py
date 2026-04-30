@@ -5,6 +5,9 @@ from app.services.embedding_service import embed_query
 from app.services.vector_service import search_vectors
 from app.services.rag_service import build_context, answer_with_groq
 from app.models.user import User
+from app.services.activity_service import log_activity
+from app.core.database import get_db
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -14,6 +17,7 @@ class QuestionRequest(BaseModel):
 @router.post("/ask")
 def ask_question(
     payload: QuestionRequest,
+    db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
 ):
     # Step 1: embed the question
@@ -41,6 +45,8 @@ def ask_question(
 
     # Step 4: get answer from Groq LLM
     answer = answer_with_groq(payload.question, context)
+
+    log_activity(db, current_user.id, "ask", f"Asked: {payload.question[:100]}")
 
     # Step 5: format source references
     sources = []

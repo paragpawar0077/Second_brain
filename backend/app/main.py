@@ -5,6 +5,9 @@ from app.core.database import Base, engine
 from app.models import user, document, chunk
 from app.routes import auth, documents, search, chat
 import os
+from app.models import user, document, chunk, activity   
+from app.routes import auth, documents, search, chat, dashboard  
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -27,6 +30,7 @@ app.include_router(auth.router)
 app.include_router(documents.router)
 app.include_router(search.router)
 app.include_router(chat.router)
+app.include_router(dashboard.router)
 
 @app.get("/")
 def read_root():

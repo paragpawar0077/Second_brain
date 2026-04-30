@@ -3,12 +3,16 @@ from app.core.dependencies import get_current_user
 from app.services.embedding_service import embed_query
 from app.services.vector_service import search_vectors
 from app.models.user import User
+from app.services.activity_service import log_activity
+from app.core.database import get_db
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/search", tags=["search"])
 
 @router.get("/")
 def semantic_search(
     q: str = Query(..., description="Your search query"),
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     # Step 1: convert query to embedding

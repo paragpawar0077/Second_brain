@@ -24,7 +24,7 @@ def semantic_search(
         user_id=current_user.id,
         n_results=5
     )
-
+    log_activity(db, current_user.id, "search", f"Searched: {q}")
     if not results or not results["documents"][0]:
         return {"query": q, "results": []}
 
